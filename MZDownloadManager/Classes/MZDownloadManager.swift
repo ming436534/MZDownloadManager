@@ -72,6 +72,8 @@ open class MZDownloadManager: NSObject {
     fileprivate let TaskDescFileURLIndex = 1
     fileprivate let TaskDescFileDestinationIndex = 2
     
+    static let SEPARATOR = "###_###"
+    
     fileprivate weak var delegate: MZDownloadManagerDelegate?
     
     open var downloadingArray: [MZDownloadModel] = []
@@ -120,7 +122,7 @@ extension MZDownloadManager {
         let downloadTasks = self.downloadTasks()
         
         for downloadTask in downloadTasks {
-            let taskDescComponents: [String] = downloadTask.taskDescription!.components(separatedBy: ",")
+            let taskDescComponents: [String] = downloadTask.taskDescription!.components(separatedBy: MZDownloadManager.SEPARATOR)
             let fileName = taskDescComponents[TaskDescFileNameIndex]
             let fileURL = taskDescComponents[TaskDescFileURLIndex]
             let destinationPath = taskDescComponents[TaskDescFileDestinationIndex]
@@ -254,7 +256,7 @@ extension MZDownloadManager: URLSessionDownloadDelegate {
             if (err?.userInfo[NSURLErrorBackgroundTaskCancelledReasonKey] as? NSNumber)?.intValue == NSURLErrorCancelledReasonUserForceQuitApplication || (err?.userInfo[NSURLErrorBackgroundTaskCancelledReasonKey] as? NSNumber)?.intValue == NSURLErrorCancelledReasonBackgroundUpdatesDisabled {
                 
                 let downloadTask = task as! URLSessionDownloadTask
-                let taskDescComponents: [String] = downloadTask.taskDescription!.components(separatedBy: ",")
+                let taskDescComponents: [String] = downloadTask.taskDescription!.components(separatedBy: MZDownloadManager.SEPARATOR)
                 let fileName = taskDescComponents[self.TaskDescFileNameIndex]
                 let fileURL = taskDescComponents[self.TaskDescFileURLIndex]
                 let destinationPath = taskDescComponents[self.TaskDescFileDestinationIndex]
@@ -342,7 +344,7 @@ extension MZDownloadManager {
         let fileURL = url.absoluteString
         
         let downloadTask = sessionManager.downloadTask(with: request)
-        downloadTask.taskDescription = [fileName, fileURL, destinationPath].joined(separator: ",")
+        downloadTask.taskDescription = [fileName, fileURL, destinationPath].joined(separator: MZDownloadManager.SEPARATOR)
         downloadTask.resume()
         
         debugPrint("session manager:\(String(describing: sessionManager)) url:\(String(describing: url)) request:\(String(describing: request))")
